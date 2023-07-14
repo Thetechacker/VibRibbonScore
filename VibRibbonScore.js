@@ -16,8 +16,8 @@ class VibRibbonScore {
         this.#scoreCoupons = "ABCDEFGHIJKLMNO";
 
         this.#coupons = Math.max(0, this.#scoreCoupons.length - 1);
-        this.#couponsValues = Math.ceil(Math.max(0, this.#coupons) / 2);
-        this.#pascalTriangleHeight = Math.max(0, ((this.#coupons * 2) - (Math.ceil(this.#coupons / 2) - Math.ceil(((this.#coupons % 2) * 1.5) + 0.5) + 2)));
+        this.#couponsValues = Math.max(Math.ceil(this.#coupons / 2));
+        this.#pascalTriangleHeight = Math.max(0, Math.ceil((this.#coupons * 1.5) - 1));
         
         this.#scoreCouponsValues = this.generateScoreCouponsValues();
 
