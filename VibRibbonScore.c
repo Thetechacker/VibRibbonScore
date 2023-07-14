@@ -8,17 +8,13 @@
 
 #include <stdio.h>
 
-#include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define __ribbonType int32_t
-#define __ribbonFloatType float
 #define __ribbonScoreCouponType char
-#define __ribbonCeilFunction ceilf
-#define __ribbonMaxFunction fmax
 
 const bool __isRibbonSigned = (((__ribbonType)(1) * -1) < 0);
 
@@ -147,9 +143,9 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
 
     __rc->_scoreCoupons = scoreCoupons;
     
-    __rc->_coupons = __ribbonMaxFunction(0, scoreCouponsSize - 1);
-    __rc->_couponsValues = __ribbonMaxFunction(0, __ribbonCeilFunction(((__ribbonFloatType)(__rc->_coupons)) / 2));
-    __rc->_pascalTriangleHeight = __ribbonMaxFunction(0, ((((__ribbonFloatType)(__rc->_coupons)) * 2) - (__ribbonCeilFunction(((__ribbonFloatType)(__rc->_coupons)) / 2) - __ribbonCeilFunction(((__rc->_coupons % 2) * 1.5) + 0.5) + 2)));
+    __rc->_coupons = scoreCouponsSize - 1;
+    __rc->_couponsValues = (((__rc->_coupons) + 1) / 2);
+    __rc->_pascalTriangleHeight = (((__rc->_coupons) * 3) / 2 - 1 + (((__rc->_coupons) * 3) % 2));
     
     __rc->_scoreCouponsValues = generateScoreCouponsValues(__rc);
 
