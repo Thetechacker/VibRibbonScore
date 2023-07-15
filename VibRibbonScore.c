@@ -137,15 +137,15 @@ __ribbonType **generateScoreCouponsValues(struct __ribbonConstructor *__rc){
 }
 
 bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ribbonType scoreCouponsSize, struct __ribbonConstructor *__rc){
-    if((scoreCoupons == NULL) || (__rc == NULL)) return false;
+    if((scoreCoupons == NULL) || (scoreCouponsSize < 0) || (__rc == NULL)) return false;
 
     bool status = true;
 
     __rc->_scoreCoupons = scoreCoupons;
     
-    __rc->_coupons = scoreCouponsSize - 1;
+    __rc->_coupons = ((1 > scoreCouponsSize) ? 0 : (scoreCouponsSize - 1));
     __rc->_couponsValues = (((__rc->_coupons) + 1) / 2);
-    __rc->_pascalTriangleHeight = (((__rc->_coupons) * 3) / 2 - 1 + (((__rc->_coupons) * 3) % 2));
+    __rc->_pascalTriangleHeight = ((1 > __rc->_coupons) ? 0 : (((__rc->_coupons) * 3) / 2 - 1 + (((__rc->_coupons) * 3) % 2)));
     
     __rc->_scoreCouponsValues = generateScoreCouponsValues(__rc);
 
@@ -189,8 +189,10 @@ bool __destroy__ribbonConstructor(struct __ribbonConstructor *__rc){
     __rc->_scoreCoupons = NULL;
 
     if(__rc->_scoreCouponsValues != NULL){
-        for(__ribbonType freeIdx = 0; freeIdx < (__rc->_coupons + 1); freeIdx++){
-            free(__rc->_scoreCouponsValues[freeIdx]);
+        if(__rc->_coupons){
+            for(__ribbonType freeIdx = 0; freeIdx < (__rc->_coupons + 1); freeIdx++){
+                free(__rc->_scoreCouponsValues[freeIdx]);
+            }
         }
 
         free(__rc->_scoreCouponsValues);
