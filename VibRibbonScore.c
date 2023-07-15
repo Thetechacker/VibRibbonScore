@@ -280,8 +280,9 @@ __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc,
     __ribbonType k = n;
     bool error = false;
 
-    for(__ribbonType i = (__rc->_couponsValues - 1); (i + 1) > 0; i--){
-        __ribbonType idxFinder = _findClosestScoreCouponIndex(__rc, i, k, &error);
+    for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
+        __ribbonType revIdx = (__rc->_couponsValues) - (i + 1);
+        __ribbonType idxFinder = _findClosestScoreCouponIndex(__rc, revIdx, k, &error);
 
         if(error){
             free(scoreCoupons);
@@ -289,8 +290,8 @@ __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc,
             return NULL;
         }
 
-        scoreCoupons[__rc->_couponsValues - (i + 1)] = __rc->_scoreCoupons[idxFinder];
-        k -= __rc->_scoreCouponsValues[idxFinder][i];
+        scoreCoupons[i] = __rc->_scoreCoupons[idxFinder];
+        k -= __rc->_scoreCouponsValues[idxFinder][revIdx];
     }
 
     if(nullByte){
