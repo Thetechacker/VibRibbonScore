@@ -325,7 +325,7 @@ int main(int argc, char *argv[]){
     __ribbonType scti = scoreCouponsToInteger(&__rc, "FFFEEDA", &sctiError);
 
     if(itsc == NULL){
-        printf("<ERR> Something wrong happened when converting integer to an integer.\n");
+        printf("<ERR> Something wrong happened when converting an integer to score coupons.\n");
 
         return 1;
     }
