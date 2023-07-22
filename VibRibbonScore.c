@@ -3,7 +3,7 @@
 
     Thetechacker
 
-    __STDC_VERSION__ = C201710
+    C99
 */
 
 #include <stdio.h>
