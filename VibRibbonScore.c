@@ -302,7 +302,7 @@ __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc,
 }
 
 int main(int argc, char *argv[]){
-    char *scoreCoupons = "ABCDEFGHIJKLMNO";
+    __ribbonScoreCouponType *scoreCoupons = "ABCDEFGHIJKLMNO";
     struct __ribbonConstructor __rc;
 
     if(!__initialize__ribbonConstructor(scoreCoupons, strlen(scoreCoupons), &__rc)){
