@@ -142,11 +142,11 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
     bool status = true;
 
     __rc->_scoreCoupons = scoreCoupons;
-    
+
     __rc->_coupons = ((1 > scoreCouponsSize) ? 0 : (scoreCouponsSize - 1));
     __rc->_couponsValues = (((__rc->_coupons) + 1) / 2);
     __rc->_pascalTriangleHeight = ((1 > __rc->_coupons) ? 0 : (((__rc->_coupons) * 3) / 2 - 1 + (((__rc->_coupons) * 3) % 2)));
-    
+
     __rc->_scoreCouponsValues = generateScoreCouponsValues(__rc);
 
     if(__rc->_scoreCouponsValues == NULL){
@@ -223,7 +223,7 @@ __ribbonType _findClosestScoreCouponIndex(struct __ribbonConstructor *__rc, __ri
 
     for(__ribbonType x = 0; x < (__rc->_coupons + 1); x++){
         __ribbonType diff = (n - __rc->_scoreCouponsValues[x][i]);
-        
+
         if((diff >= 0) && (diff < minDiff)){
             minDiff = diff;
             closestIndex = x;
