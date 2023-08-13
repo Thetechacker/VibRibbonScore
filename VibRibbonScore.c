@@ -273,6 +273,8 @@ __ribbonType scoreCouponsToInteger(struct __ribbonConstructor *__rc, __ribbonSco
 }
 
 __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc, __ribbonType n, bool nullByte){
+    if(__rc == NULL) return NULL;
+
     __ribbonScoreCouponType *scoreCoupons = malloc(sizeof(__ribbonScoreCouponType) * (__rc->_couponsValues + (nullByte ? 1 : 0)));
 
     if(scoreCoupons == NULL) return NULL;
@@ -306,7 +308,7 @@ int main(int argc, char *argv[]){
     struct __ribbonConstructor __rc;
 
     if(!__initialize__ribbonConstructor(scoreCoupons, strlen(scoreCoupons), &__rc)){
-        printf("<ERR> Something wrong happened while initializing __ribbonConstructor:__rc\n");
+        fprintf(stderr, "<ERR> Something wrong happened while initializing __ribbonConstructor:__rc\n");
 
         return 1;
     }
@@ -325,13 +327,13 @@ int main(int argc, char *argv[]){
     __ribbonType scti = scoreCouponsToInteger(&__rc, "FFFEEDA", &sctiError);
 
     if(itsc == NULL){
-        printf("<ERR> Something wrong happened when converting an integer to score coupons.\n");
+        fprintf(stderr, "<ERR> Something wrong happened when converting an integer to score coupons.\n");
 
         return 1;
     }
 
     if(sctiError){
-        printf("<ERR> Something wrong happened when converting score coupons to an integer.\n");
+        fprintf(stderr, "<ERR> Something wrong happened when converting score coupons to an integer.\n");
 
         return 1;
     }
