@@ -23,7 +23,6 @@ struct __ribbonConstructor {
 
     __ribbonType _coupons;
     __ribbonType _couponsValues;
-    __ribbonType _pascalTriangleHeight;
 
     __ribbonType **_scoreCouponsValues;
 
@@ -40,100 +39,21 @@ __ribbonType tPow(__ribbonType x, __ribbonType y){
     return n;
 }
 
-__ribbonType **generatePascalTriangle(__ribbonType triangleHeight){
-    const __ribbonType __ribbonMax = (tPow(2, (sizeof(__ribbonType) * 8) - (__isRibbonSigned ? 1 : 0)) - 1);
+bool __destroy__ribbonConstructor(struct __ribbonConstructor *__rc){
+    if(__rc == NULL) return false;
 
-    __ribbonType **triangle = malloc(sizeof(__ribbonType *) * (triangleHeight + 1));
+    __rc->_scoreCoupons = NULL;
 
-    if(triangle == NULL) return NULL;
-
-    bool status = true;
-
-    triangle[0] = malloc(sizeof(__ribbonType) * 1);
-
-    if(triangle[0] == NULL){
-        status = false;
-
-        goto cleanup;
+    if(__rc->_scoreCouponsValues != NULL){
+        free(__rc->_scoreCouponsValues);
     }
 
-    triangle[0][0] = 1;
+    __rc->_coupons = 0;
+    __rc->_couponsValues = 0;
 
-    for(__ribbonType curHeight = 1; curHeight < (triangleHeight + 1); curHeight++){
-        triangle[curHeight] = malloc(sizeof(__ribbonType) * (curHeight + 1));
+    __rc->MAX_INTEGER = 0;
 
-        if(triangle[curHeight] == NULL){
-            for(__ribbonType freeIdx = 0; freeIdx < curHeight; freeIdx++){
-                free(triangle[freeIdx]);
-            }
-
-            status = false;
-
-            goto cleanup;
-        }
-
-        for(__ribbonType prevArrIdx = 0; prevArrIdx < curHeight; prevArrIdx++){
-            triangle[curHeight][prevArrIdx] = ((__isRibbonSigned ? ((prevArrIdx - 1) < 0) : ((prevArrIdx - 1) == __ribbonMax)) ? 0 : triangle[curHeight - 1][prevArrIdx - 1]) + triangle[curHeight - 1][prevArrIdx];
-
-            if(prevArrIdx == (curHeight - 1)) triangle[curHeight][prevArrIdx + 1] = (triangle[curHeight - 1][prevArrIdx] + (((prevArrIdx + 1) >= curHeight) ? 0 : triangle[curHeight - 1][prevArrIdx + 1]));
-        }
-    }
-
-    cleanup:
-        if(!status && (triangle != NULL)) free(triangle);
-
-        return (status ? triangle : NULL);
-}
-
-__ribbonType **generateScoreCouponsValues(struct __ribbonConstructor *__rc){
-    if(__rc == NULL) return NULL;
-
-    __ribbonType **pascalTriangle = generatePascalTriangle(__rc->_pascalTriangleHeight);
-
-    if(pascalTriangle == NULL) return NULL;
-
-    __ribbonType **scoreCouponsValues = malloc(sizeof(__ribbonType*) * (__rc->_coupons + 1));
-
-    if(scoreCouponsValues == NULL) return NULL;
-
-    bool status = true;
-
-    if(__rc->_coupons){
-        scoreCouponsValues[0] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
-
-        if(scoreCouponsValues[0] == NULL){
-            status = false;
-
-            goto cleanup;
-        }
-
-        for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
-            scoreCouponsValues[0][i] = 0;
-        }
-
-        for(__ribbonType x = 1; x < (__rc->_coupons + 1); x++){
-            scoreCouponsValues[x] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
-
-            if(scoreCouponsValues[x] == NULL){
-                for(__ribbonType freeIdx = 0; freeIdx < (x + 1); freeIdx++){
-                    free(scoreCouponsValues[freeIdx]);
-                }
-
-                status = false;
-
-                goto cleanup;
-            }
-
-            for(__ribbonType y = 1; y < (__rc->_couponsValues + 1); y++){
-                scoreCouponsValues[x][y - 1] = pascalTriangle[(x - 1) + y][y];
-            }
-        }
-    }
-
-    cleanup:
-        if(!status && (scoreCouponsValues != NULL)) free(scoreCouponsValues);
-
-        return (status ? scoreCouponsValues : NULL);
+    return true;
 }
 
 bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ribbonType scoreCouponsSize, struct __ribbonConstructor *__rc){
@@ -145,14 +65,41 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
 
     __rc->_coupons = ((1 > scoreCouponsSize) ? 0 : (scoreCouponsSize - 1));
     __rc->_couponsValues = (((__rc->_coupons) + 1) / 2);
-    __rc->_pascalTriangleHeight = ((1 > __rc->_coupons) ? 0 : (((__rc->_coupons) * 3) / 2 - 1 + (((__rc->_coupons) * 3) % 2)));
 
-    __rc->_scoreCouponsValues = generateScoreCouponsValues(__rc);
+    __rc->_scoreCouponsValues = malloc(sizeof(__ribbonType*) * (__rc->_coupons + 1));
 
     if(__rc->_scoreCouponsValues == NULL){
         status = false;
 
         goto cleanup;
+    }
+
+    __rc->_scoreCouponsValues[0] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
+
+    if(__rc->_scoreCouponsValues[0] == NULL){
+        status = false;
+
+        goto cleanup;
+    }
+
+    for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
+        __rc->_scoreCouponsValues[0][i] = 0;
+    }
+
+    for(__ribbonType scoreCouponIndex = 1; scoreCouponIndex < (__rc->_coupons + 1); scoreCouponIndex++){
+        __rc->_scoreCouponsValues[scoreCouponIndex] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
+
+        if(__rc->_scoreCouponsValues[scoreCouponIndex] == NULL){
+            status = false;
+
+            goto cleanup;
+        }
+
+        __rc->_scoreCouponsValues[scoreCouponIndex][0] = scoreCouponIndex;
+
+        for(__ribbonType valueIndex = 1; valueIndex < __rc->_couponsValues; valueIndex++){
+            __rc->_scoreCouponsValues[scoreCouponIndex][valueIndex] = (__rc->_scoreCouponsValues[scoreCouponIndex][valueIndex - 1] + __rc->_scoreCouponsValues[scoreCouponIndex - 1][valueIndex]);
+        }
     }
 
     __rc->MAX_INTEGER = 0;
@@ -164,49 +111,9 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
     }
 
     cleanup:
-        if(!status){
-            __rc->_scoreCoupons = NULL;
+        if(!status) __destroy__ribbonConstructor(__rc);
 
-            __rc->_coupons = 0;
-            __rc->_couponsValues = 0;
-            __rc->_pascalTriangleHeight = 0;
-
-            if(__rc->_scoreCouponsValues != NULL){
-                free(__rc->_scoreCouponsValues);
-
-                __rc->_scoreCouponsValues = NULL;
-            }
-
-            __rc->MAX_INTEGER = 0;
-        }
-
-        return status;
-}
-
-bool __destroy__ribbonConstructor(struct __ribbonConstructor *__rc){
-    if(__rc == NULL) return false;
-
-    __rc->_scoreCoupons = NULL;
-
-    if(__rc->_scoreCouponsValues != NULL){
-        if(__rc->_coupons){
-            for(__ribbonType freeIdx = 0; freeIdx < (__rc->_coupons + 1); freeIdx++){
-                free(__rc->_scoreCouponsValues[freeIdx]);
-            }
-        }
-
-        free(__rc->_scoreCouponsValues);
-
-        __rc->_scoreCouponsValues = NULL;
-    }
-
-    __rc->_coupons = 0;
-    __rc->_couponsValues = 0;
-    __rc->_pascalTriangleHeight = 0;
-
-    __rc->MAX_INTEGER = 0;
-
-    return true;
+    return status;
 }
 
 __ribbonType _findClosestScoreCouponIndex(struct __ribbonConstructor *__rc, __ribbonType i, __ribbonType n, bool *error){
@@ -313,7 +220,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    printf("%i %i %i %i\n", __rc._pascalTriangleHeight, __rc._coupons, __rc._couponsValues, __rc.MAX_INTEGER);
+    printf("%i %i %i\n", __rc._coupons, __rc._couponsValues, __rc.MAX_INTEGER);
 
     for(__ribbonType x = 0; x < (__rc._coupons + 1); x++){
         for(__ribbonType y = 0; y < __rc._couponsValues; y++){
@@ -322,28 +229,34 @@ int main(int argc, char *argv[]){
     }
 
     bool sctiError = false;
+    int exitCode = 0;
 
     __ribbonScoreCouponType *itsc = integerToScoreCoupons(&__rc, 727, true);
     __ribbonType scti = scoreCouponsToInteger(&__rc, "FFFEEDA", &sctiError);
 
     if(itsc == NULL){
-        fprintf(stderr, "<ERR> Something wrong happened when converting an integer to score coupons.\n");
+        fprintf(stderr, "<ERR> Something wrong happened while converting an integer to score coupons.\n");
 
-        return 1;
+        exitCode = 1;
+
+        goto cleanup;
     }
 
     if(sctiError){
-        fprintf(stderr, "<ERR> Something wrong happened when converting score coupons to an integer.\n");
+        fprintf(stderr, "<ERR> Something wrong happened while converting score coupons to an integer.\n");
 
-        return 1;
+        exitCode = 1;
+
+        goto cleanup;
     }
 
     printf("%s\n", itsc);
     printf("%i\n", scti);
 
-    free(itsc);
+    cleanup:
+        if(itsc != NULL) free(itsc);
 
-    __destroy__ribbonConstructor(&__rc);
+        __destroy__ribbonConstructor(&__rc);
 
-    return 0;
+    return exitCode;
 }
