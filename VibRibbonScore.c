@@ -44,9 +44,7 @@ bool __destroy__ribbonConstructor(struct __ribbonConstructor *__rc){
 
     __rc->_scoreCoupons = NULL;
 
-    if(__rc->_scoreCouponsValues != NULL){
-        free(__rc->_scoreCouponsValues);
-    }
+    if(__rc->_scoreCouponsValues != NULL) free(__rc->_scoreCouponsValues);
 
     __rc->_coupons = 0;
     __rc->_couponsValues = 0;
@@ -63,8 +61,8 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
 
     __rc->_scoreCoupons = scoreCoupons;
 
-    __rc->_coupons = ((1 > scoreCouponsSize) ? 0 : (scoreCouponsSize - 1));
-    __rc->_couponsValues = (((__rc->_coupons) + 1) / 2);
+    __rc->_coupons = ((0 > scoreCouponsSize) ? 0 : scoreCouponsSize);
+    __rc->_couponsValues = (__rc->_coupons / 2);
 
     __rc->_scoreCouponsValues = malloc(sizeof(__ribbonType*) * (__rc->_coupons + 1));
 
@@ -74,19 +72,7 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
         goto cleanup;
     }
 
-    __rc->_scoreCouponsValues[0] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
-
-    if(__rc->_scoreCouponsValues[0] == NULL){
-        status = false;
-
-        goto cleanup;
-    }
-
-    for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
-        __rc->_scoreCouponsValues[0][i] = 0;
-    }
-
-    for(__ribbonType scoreCouponIndex = 1; scoreCouponIndex < (__rc->_coupons + 1); scoreCouponIndex++){
+    for(__ribbonType scoreCouponIndex = 0; scoreCouponIndex < __rc->_coupons; scoreCouponIndex++){
         __rc->_scoreCouponsValues[scoreCouponIndex] = malloc(sizeof(__ribbonType) * __rc->_couponsValues);
 
         if(__rc->_scoreCouponsValues[scoreCouponIndex] == NULL){
@@ -98,7 +84,7 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
         __rc->_scoreCouponsValues[scoreCouponIndex][0] = scoreCouponIndex;
 
         for(__ribbonType valueIndex = 1; valueIndex < __rc->_couponsValues; valueIndex++){
-            __rc->_scoreCouponsValues[scoreCouponIndex][valueIndex] = (__rc->_scoreCouponsValues[scoreCouponIndex][valueIndex - 1] + __rc->_scoreCouponsValues[scoreCouponIndex - 1][valueIndex]);
+            __rc->_scoreCouponsValues[scoreCouponIndex][valueIndex] = (scoreCouponIndex <= 0) ? 0 : (__rc->_scoreCouponsValues[scoreCouponIndex][valueIndex - 1] + __rc->_scoreCouponsValues[scoreCouponIndex - 1][valueIndex]);
         }
     }
 
@@ -106,7 +92,7 @@ bool __initialize__ribbonConstructor(__ribbonScoreCouponType *scoreCoupons, __ri
 
     if(__rc->_coupons){
         for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
-            __rc->MAX_INTEGER += __rc->_scoreCouponsValues[__rc->_coupons][i];
+            __rc->MAX_INTEGER += __rc->_scoreCouponsValues[__rc->_coupons - 1][i];
         }
     }
 
@@ -128,7 +114,7 @@ __ribbonType _findClosestScoreCouponIndex(struct __ribbonConstructor *__rc, __ri
     __ribbonType minDiff = __ribbonMax;
     __ribbonType closestIndex = 0;
 
-    for(__ribbonType x = 0; x < (__rc->_coupons + 1); x++){
+    for(__ribbonType x = 0; x < __rc->_coupons; x++){
         __ribbonType diff = (n - __rc->_scoreCouponsValues[x][i]);
 
         if((diff >= 0) && (diff < minDiff)){
@@ -155,7 +141,7 @@ __ribbonType scoreCouponsToInteger(struct __ribbonConstructor *__rc, __ribbonSco
         bool defScoreCouponIdx = false;
         __ribbonType scoreCouponIdx = 0;
 
-        for(__ribbonType x = 0; x < (__rc->_coupons + 1); x++){
+        for(__ribbonType x = 0; x < __rc->_coupons; x++){
             if(scoreCoupons[i] == __rc->_scoreCoupons[x]){
                 scoreCouponIdx = x;
                 defScoreCouponIdx = true;
@@ -189,7 +175,9 @@ __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc,
     __ribbonType k = n;
     bool error = false;
 
-    for(__ribbonType i = 0; i < __rc->_couponsValues; i++){
+    __ribbonType i = 0;
+
+    for(; i < __rc->_couponsValues; i++){
         __ribbonType revIdx = (__rc->_couponsValues) - (i + 1);
         __ribbonType idxFinder = _findClosestScoreCouponIndex(__rc, revIdx, k, &error);
 
@@ -204,7 +192,7 @@ __ribbonScoreCouponType *integerToScoreCoupons(struct __ribbonConstructor *__rc,
     }
 
     if(nullByte){
-        scoreCoupons[__rc->_couponsValues] = 0x00;
+        scoreCoupons[i] = 0x00;
     }
 
     return scoreCoupons;
@@ -222,7 +210,7 @@ int main(int argc, char *argv[]){
 
     printf("%i %i %i\n", __rc._coupons, __rc._couponsValues, __rc.MAX_INTEGER);
 
-    for(__ribbonType x = 0; x < (__rc._coupons + 1); x++){
+    for(__ribbonType x = 0; x < __rc._coupons; x++){
         for(__ribbonType y = 0; y < __rc._couponsValues; y++){
             printf("__rc.scoreCouponsValues[%i][%i] = %i\n", x, y, __rc._scoreCouponsValues[x][y]);
         }
